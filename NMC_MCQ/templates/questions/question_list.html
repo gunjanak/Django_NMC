@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Question List</title>
+</head>
+<body>
+    <h1>Questions</h1>
+
+    <!-- Dropdown form for selecting subject -->
+    <form method="get" action="{% url 'question-list' %}">
+        <label for="subject">Filter by Subject:</label>
+        <select name="subject" id="subject" onchange="this.form.submit()">
+            <option value="">All Subjects</option>
+            {% for subject in subjects %}
+                <option value="{{ subject }}" {% if subject == selected_subject %}selected{% endif %}>
+                    {{ subject }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- Display the current score -->
+    <h3>Score: {{ score }}</h3>
+
+    <!-- Display the question and its options -->
+    <div>
+        {% for question in questions %}
+            <h3>Category: {{ question.category }}</h3>
+            <h4>Subject: {{ question.subject }}</h4>
+            <p><strong>Question:</strong> {{ question.question }}</p>
+
+            {% if not answered %}
+                <!-- If the question has not been answered, show the options -->
+                <form method="post" action="?subject={{ selected_subject }}&page={{ page_obj.number }}">
+                    {% csrf_token %}
+                    <ul>
+                        {% for option in question.shuffled_options %}
+                            <li><label><input type="radio" name="selected_option" value="{{ option }}"> {{ option }}</label></li>
+                        {% endfor %}
+                    </ul>
+                    <button type="submit">Submit Answer</button>
+                </form>
+            {% else %}
+                <!-- If the question has been answered, show the result -->
+                <p>
+                    {% if is_correct %}
+                        <strong>Correct!</strong> Your answer: {{ selected_option }}
+                    {% else %}
+                        <strong>Incorrect.</strong> Your answer: {{ selected_option }} <br>
+                        The correct answer is: {{ questions.0.correct_option }}
+                    {% endif %}
+                </p>
+            {% endif %}
+        {% endfor %}
+        
+        <!-- Show "Start New Quiz" only if the last question has been answered -->
+        {% if answered and not page_obj.has_next %}
+            <p>All questions have been answered!</p>
+            <h3>Time taken: {{ time_taken }}</h3>
+            <a href="{% url 'question-list' %}?reset=1">Start New Quiz</a>
+        {% endif %}
+        
+    </div>
+
+    <!-- Navigation for pagination -->
+    {% if answered %}
+        <div>
+            {% if page_obj.has_previous %}
+                <a href="?subject={{ selected_subject }}&page={{ page_obj.previous_page_number }}">Previous</a>
+            {% endif %}
+
+            {% if page_obj.has_next %}
+                <a href="?subject={{ selected_subject }}&page={{ page_obj.next_page_number }}">Next</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>
