@@ -6,15 +6,15 @@ from django.db import models
 class Question(models.Model):
     # Define your choices for category and subject
     CATEGORY_CHOICES = [
-        ('category1', 'Category 1'),
-        ('category2', 'Category 2'),
-        ('category3', 'Category 3'),
+        ('MBBS', 'MBBS'),
+        ('BDS', 'BDS'),
+        ('MS', 'MS'),
     ]
     
     SUBJECT_CHOICES = [
-        ('subject1', 'Subject 1'),
-        ('subject2', 'Subject 2'),
-        ('subject3', 'Subject 3'),
+        ('Surgery', 'Surgery'),
+        ('Medicine', 'Medicine'),
+        ('Gyane', 'Gyane'),
     ]
 
     # Fields for the Question model

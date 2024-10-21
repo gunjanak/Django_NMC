@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Question List</title>
+</head>
+<body>
+    <h1>All Questions</h1>
+
+    <!-- Dropdown form for selecting subject -->
+    <form method="get" action="{% url 'question-list' %}">
+        <label for="subject">Filter by Subject:</label>
+        <select name="subject" id="subject" onchange="this.form.submit()">
+            <option value="">All Subjects</option>
+            {% for subject in subjects %}
+                <option value="{{ subject }}" {% if subject == selected_subject %}selected{% endif %}>
+                    {{ subject }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <ul>
+        {% for question in questions %}
+            <li>
+                <strong>Category:</strong> {{ question.category }} <br>
+                <strong>Subject:</strong> {{ question.subject }} <br>
+                <strong>Question:</strong> {{ question.question }} <br>
+                <strong>Options:</strong>
+                <ul>
+                    <li>{{ question.option1 }}</li>
+                    <li>{{ question.option2 }}</li>
+                    <li>{{ question.option3 }}</li>
+                    <li>{{ question.option4 }}</li>
+                </ul>
+                <strong>Correct Answer:</strong> {{ question.correct_option }} <br><br>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
