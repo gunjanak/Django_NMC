@@ -6,11 +6,11 @@
 <body>
     <h1>Questions</h1>
 
-    <!-- Dropdown form for selecting subject -->
+    <!-- Dropdown form for selecting subject (with 'Medicine' as default) -->
     <form method="get" action="{% url 'question-list' %}">
         <label for="subject">Filter by Subject:</label>
         <select name="subject" id="subject" onchange="this.form.submit()">
-            <option value="">All Subjects</option>
+            <option value="Medicine" {% if selected_subject == 'Medicine' %}selected{% endif %}>Medicine</option>
             {% for subject in subjects %}
                 <option value="{{ subject }}" {% if subject == selected_subject %}selected{% endif %}>
                     {{ subject }}
@@ -18,6 +18,16 @@
             {% endfor %}
         </select>
     </form>
+
+    {% if selected_subject %}
+        <!-- Block size selection form (only visible when subject is selected) -->
+        <form method="get" action="{% url 'question-list' %}">
+            <input type="hidden" name="subject" value="{{ selected_subject }}">
+            <label for="block_size">Choose a block of questions:</label>
+            <button type="submit" name="block_size" value="5">5 Questions</button>
+            <button type="submit" name="block_size" value="10">10 Questions</button>
+        </form>
+    {% endif %}
 
     <!-- Display the current score -->
     <h3>Score: {{ score }}</h3>
@@ -52,15 +62,15 @@
                 </p>
             {% endif %}
         {% endfor %}
-        
-        <!-- Show "Start New Quiz" only if the last question has been answered -->
-        {% if answered and not page_obj.has_next %}
-            <p>All questions have been answered!</p>
-            <h3>Time taken: {{ time_taken }}</h3>
-            <a href="{% url 'question-list' %}?reset=1">Start New Quiz</a>
-        {% endif %}
-        
+         <!-- Show "Start New Quiz" only if the last question has been answered -->
+         {% if answered and not page_obj.has_next %}
+         <p>All questions have been answered!</p>
+         <h3>Time taken: {{ time_taken }}</h3>
+         <a href="{% url 'question-list' %}?reset=1">Start New Quiz</a>
+     {% endif %}
     </div>
+
+ 
 
     <!-- Navigation for pagination -->
     {% if answered %}
