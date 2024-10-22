@@ -1,20 +1,57 @@
 import random
 
 from rest_framework.response import Response
+from rest_framework import generics,status
 from rest_framework.decorators import action
-from rest_framework import status
-
 from rest_framework import viewsets
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+
+
 from django.views.generic import ListView
-from .models import Question
-from .serializers import QuestionSerializer
 from django.utils import timezone
+from django.contrib.auth.models import User
+
+
+from .models import Question
+from .serializers import QuestionSerializer,RegisterSerializer
 
 from datetime import datetime
 
+
+#Logout view (Blacklisting tokens)
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated)
+    def post(self,request,*args,**kwargs):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Successfully logged out"}, status=status.HTTP_205_RESET_CONTENT)
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+#Register View
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+    
+    def post(self,request,*args,**kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+    # permission_classes = [AllowAny]
     
     #List all unique subjects
     @action(detail=False,methods=['get'],url_path='subjects')
