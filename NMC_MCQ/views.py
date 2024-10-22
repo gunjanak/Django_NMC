@@ -1,9 +1,52 @@
 import random
+
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework import status
+
+from rest_framework import viewsets
 from django.views.generic import ListView
 from .models import Question
+from .serializers import QuestionSerializer
 from django.utils import timezone
+
 from datetime import datetime
 
+class QuestionViewSet(viewsets.ModelViewSet):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    
+    #List all unique subjects
+    @action(detail=False,methods=['get'],url_path='subjects')
+    def list_subjects(self,request):
+        subjects = Question.objects.values_list('subject',flat=True).distinct()
+        return Response(subjects)
+    
+    #Get all questions for a specific subject
+    @action(detail=False,methods=['get'],url_path='subject-questions/(?P<subject>[^/.]+)')
+    def get_questions_by_subject(self,request,subject=None):
+        questions = Question.objects.filter(subject=subject)
+        serializer = self.get_serializer(questions,many=True)
+        return Response(serializer.data)
+    
+    
+    #Get x number of questions for a specific subject
+    @action(detail=False,methods=['get'],url_path='subject-questions/(?P<subject>[^/.]+)/(?P<num>\d+)')
+    def get_limited_questions_by_subject(self,request,subject=None,num=None):
+        try:
+            num = int(num)
+            questions = Question.objects.filter(subject=subject)[:num]
+            serializer = self.get_serializer(questions,many=True)
+            return Response(serializer.data)
+        except ValueError:
+            return Response({'error':"Invalid number format"},
+                            status=status.HTTP_400_BAD_REQUEST)
+            
+    
+    
+    
+    
+    
 class QuestionListView(ListView):
     model = Question
     template_name = 'questions/question_list.html'
@@ -108,3 +151,6 @@ class QuestionListView(ListView):
         self.request.session['current_subject'] = None
         self.request.session['block_size'] = None
         self.request.session['incorrect_answers'] = []  # Clear incorrect answers
+
+
+

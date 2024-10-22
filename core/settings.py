@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #new applications
     'NMC_MCQ',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
