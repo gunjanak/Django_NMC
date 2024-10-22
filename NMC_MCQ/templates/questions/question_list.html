@@ -87,6 +87,20 @@
             <h3>Time taken: {{ time_taken }}</h3>
             <a href="{% url 'question-list' %}?reset=1" class="btn btn-outline-primary">Start New Quiz</a>
         </div>
+
+        <!-- Display incorrect answers at the end of the quiz -->
+            {% if incorrect_answers %}
+                <h3>Questions You Answered Incorrectly:</h3>
+                <ul class="list-group mb-4">
+                    {% for incorrect in incorrect_answers %}
+                        <li class="list-group-item">
+                            <strong>Question:</strong> {{ incorrect.question }}<br>
+                            <strong>Your Answer:</strong> {{ incorrect.your_answer }}<br>
+                            <strong>Correct Answer:</strong> {{ incorrect.correct_answer }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         {% endif %}
 
         <!-- Pagination -->
