@@ -51,6 +51,7 @@ class RegisterView(generics.CreateAPIView):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+    permission_classes = [IsAuthenticated]
     # permission_classes = [AllowAny]
     
     #List all unique subjects
