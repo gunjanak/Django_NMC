@@ -7,8 +7,11 @@ from rest_framework import viewsets
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny,IsAdminUser
 
+from rest_framework.decorators import action
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 from django.views.generic import ListView
@@ -24,7 +27,7 @@ from datetime import datetime
 
 #Logout view (Blacklisting tokens)
 class LogoutView(APIView):
-    permission_classes = (IsAuthenticated)
+    permission_classes = [IsAuthenticated]
     def post(self,request,*args,**kwargs):
         try:
             refresh_token = request.data["refresh"]
@@ -51,17 +54,37 @@ class RegisterView(generics.CreateAPIView):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    permission_classes = [IsAuthenticated]
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            # Admin-only permissions for modifying data
+            self.permission_classes = [IsAdminUser]
+        else:
+            # Allow any authenticated user to view the data
+            self.permission_classes = [IsAuthenticated]
+        return super().get_permissions()
+    # permission_classes = [IsAuthenticated]
     # permission_classes = [AllowAny]
     
     #List all unique subjects
+    
+    @swagger_auto_schema(
+        operation_description="List all unique subjects",
+        responses={200: openapi.Response('List of subjects', openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING)))}
+    )
     @action(detail=False,methods=['get'],url_path='subjects')
     def list_subjects(self,request):
+        print("*********************")
         subjects = Question.objects.values_list('subject',flat=True).distinct()
+        print("*********************")
+        print(subjects)
         return Response(subjects)
     
     #Get all questions for a specific subject
-    @action(detail=False,methods=['get'],url_path='(?P<subject>[^/.]+)')
+    @swagger_auto_schema(
+        operation_description="Get all questions for a specific subject",
+        responses={200: QuestionSerializer(many=True)}
+    )
+    @action(detail=False,methods=['get'],url_path='subject/(?P<subject>[^/.]+)')
     def get_questions_by_subject(self,request,subject=None):
         questions = Question.objects.filter(subject=subject)
         serializer = self.get_serializer(questions,many=True)
@@ -69,7 +92,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
     
     
     #Get x number of questions for a specific subject
-    @action(detail=False,methods=['get'],url_path='(?P<subject>[^/.]+)/(?P<num>\d+)')
+    @swagger_auto_schema(
+        operation_description="Get X number of questions for a specific subject",
+        responses={200: QuestionSerializer(many=True)},
+        manual_parameters=[openapi.Parameter('num', openapi.IN_PATH, description="Number of questions to retrieve", type=openapi.TYPE_INTEGER)]
+    )
+    @action(detail=False,methods=['get'],url_path='subject/(?P<subject>[^/.]+)/(?P<num>\d+)')
     def get_limited_questions_by_subject(self,request,subject=None,num=None):
         try:
             num = int(num)

@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'django.contrib.admin',
@@ -140,6 +141,21 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
+
+# Optional: Allow Swagger to work without authentication for public documentation views
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+    'REFETCH_SCHEMA_ON_ACTION': True,
+}
+
 
 # JWT settings (optional but recommended)
 SIMPLE_JWT = {
