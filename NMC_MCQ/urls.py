@@ -1,12 +1,12 @@
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
-from .views import QuestionListView, QuestionViewSet, RegisterView,LogoutView
+from .views import QuestionViewSet, RegisterView,LogoutView
 
 
 
 router = DefaultRouter()
-router.register(r'questions',QuestionViewSet)
+router.register(r'api/questions',QuestionViewSet)
 
 urlpatterns = [
     path('',include(router.urls)),
