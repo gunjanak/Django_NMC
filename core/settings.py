@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-)0$hp%_g8&ok(7()i*we^m4+jvzmkgu2+6+2jq^w28=-xjst=b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -166,3 +166,9 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    '.ngrok-free.app',  # This allows any subdomain on ngrok-free.app
+]
